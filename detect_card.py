@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import cv
+import cv2
 import math
 
 
@@ -69,25 +69,23 @@ def line_intersect(s1, s2):
 
 
 def detect_card(grey_image, grey_base, thresh=100):
-	diff = cv.CloneImage(grey_image)
-	cv.AbsDiff(grey_image, grey_base, diff)
+	diff = cv2.absdiff(grey_image, grey_base)
 
-	edges = cv.CloneImage(grey_image)
-	cv.Canny(diff, edges, thresh, thresh)
+	edges = cv2.Canny(diff, thresh, thresh)
 
-	contours = cv.FindContours(edges, cv.CreateMemStorage(0))
+	contours,_ = cv2.findContours(edges,cv2.CV_RETR_LIST,cv2.CV_CHAIN_APPROX_SIMPLE)
 	edge_pts = []
 	c = contours
 	while c is not None:
 		if len(c) > 10:
-			edge_pts += list(c)
+			edge_pts.append(c)
 		if len(c) == 0: #'cus opencv is buggy and dumb
 			break
 		c = c.h_next()
 
 	if len(edge_pts) == 0:
 		return None
-	hull = cv.ConvexHull2(edge_pts, cv.CreateMemStorage(0), cv.CV_CLOCKWISE, 1)
+	hull = cv2.ConvexHull2(edge_pts, cv2.CreateMemStorage(0), cv2.CV_CLOCKWISE, 1)
 	lines = longest_lines(hull)
 	perim = sum(l['len'] for l in lines)
 	#print perim

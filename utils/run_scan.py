@@ -67,9 +67,7 @@ def capture_box(cam, boxnum):
 
 	captures_to_db(captures, boxnum)
 
-
-
-if __name__ == '__main__':
+def main_camera():
 	setup_all(True)
 
 	cam = cv.CreateCameraCapture(0)
@@ -89,4 +87,30 @@ if __name__ == '__main__':
 		answer = raw_input().rstrip()
 		if answer != "":
 			next_box = answer
-		capture_box(cam, next_box)
+                capture_box(cam, next_box)
+    
+def main_video():
+    video = cv.VideoCapture(0)
+    setup_all(True)
+
+    scan_card.setup_windows()
+
+    #main loop
+    while True:
+    	#for now, name the next box as the largest integer box name, +1
+    	current_max_box = session.query(func.max(sqlalchemy.cast(InvCard.box, sqlalchemy.Integer))).first()[0]
+    	if current_max_box is None:
+	    #if there is no current box, just start at 1
+	    next_box = 1
+	else:
+            next_box = current_max_box + 1
+
+    	print "box to scan[%02d]: " % next_box,
+    	answer = raw_input().rstrip()
+    	if answer != "":
+    	    next_box = answer
+        capture_box(cam, next_box)
+
+
+if __name__ == '__main__':
+    main_video()
