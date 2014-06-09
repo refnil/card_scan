@@ -16,7 +16,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import math
-import cv
 import os
 import sqlite3
 import numpy
@@ -27,11 +26,13 @@ import config
 
 def get_card(color_capture, corners):
 	target = [(0,0), (223,0), (223,310), (0,310)]
-	mat = cv.CreateMat(3,3, cv.CV_32FC1)
-	cv.GetPerspectiveTransform(corners, target, mat)
-	warped = cv.CloneImage(color_capture)
-	cv.WarpPerspective(color_capture, warped, mat)
-	cv.SetImageROI(warped, (0,0,223,310) )
+	#mat = cv.CreateMat(3,3, cv.CV_32FC1)
+	mat = cv2.getPerspectiveTransform(corners, target)
+	#warped = cv.CloneImage(color_capture)
+        #cv.WarpPerspective(color_capture, warped, mat)
+        warped = cv.warpPerspective(color_capture, mat, color_capture.shape())
+	#cv.SetImageROI(warped, (0,0,223,310) )
+        warped = warped[0:310, 0:223]
 	return warped
 
 #*****************
