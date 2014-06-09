@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import cv
+import cv2
 import scan_card
 
 from elixir import session, setup_all
@@ -33,7 +33,7 @@ def captures_to_db(captures, box_name):
 		starting_index = 0
 
 	for i, img in enumerate(captures):
-		as_png = cv.EncodeImage(".png", img).tostring()
+		as_png = cv2.imencode(".png",img).tostring()
 
 		InvCard(
 				box = box_name,
@@ -70,7 +70,7 @@ def capture_box(cam, boxnum):
 def main_camera():
 	setup_all(True)
 
-	cam = cv.CreateCameraCapture(0)
+	cam = cv2.VideoCapture(0)
 	scan_card.setup_windows()
 
 	#main loop
@@ -90,7 +90,7 @@ def main_camera():
                 capture_box(cam, next_box)
     
 def main_video():
-    video = cv.VideoCapture(0)
+    video = cv2.VideoCapture(0)
     setup_all(True)
 
     scan_card.setup_windows()
@@ -109,7 +109,7 @@ def main_video():
     	answer = raw_input().rstrip()
     	if answer != "":
     	    next_box = answer
-        capture_box(cam, next_box)
+        capture_box(video, next_box)
 
 
 if __name__ == '__main__':
