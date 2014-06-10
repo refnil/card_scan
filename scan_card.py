@@ -30,7 +30,7 @@ def get_card(color_capture, corners):
 	mat = cv2.getPerspectiveTransform(corners, target)
 	#warped = cv.CloneImage(color_capture)
         #cv.WarpPerspective(color_capture, warped, mat)
-        warped = cv.warpPerspective(color_capture, mat, color_capture.shape())
+        warped = cv2.warpPerspective(color_capture, mat, color_capture.shape())
 	#cv.SetImageROI(warped, (0,0,223,310) )
         warped = warped[0:310, 0:223]
 	return warped
@@ -51,41 +51,43 @@ def update_windows(n=3):
 	l = len(captures)
 	for i in xrange(1,min(n,l)+1):
 		#print "setting ",i
-		tmp = cv.CloneImage(captures[-i])
-		cv.PutText(tmp, "%s" % (l-i+1), (1,24), font, (255,255,255))
-		cv.ShowImage("card_%d" % i, tmp)
-		cv.SetMouseCallback("card_%d" % i, card_window_clicked, l - i)
+		tmp = captures[-i].copy()
+                cv2.putText(tmp, "%s" % (l-i+1), (1,24), cv2.FONT_HERSEY_SIMPLEX,1.0, (255,255,255))
+		cv2.imshow("card_%d" % i, tmp)
+		cv2.setMouseCallback("card_%d" % i, card_window_clicked, l - i)
 
 def watch_for_card(camera):
 	has_moved = False
 	been_to_base = False
 
 	global captures
-	global font
+	#global font
 	captures = []
 
-	font = cv.InitFont(cv.CV_FONT_HERSHEY_SIMPLEX, 1.0, 1.0)
-	img = cv.QueryFrame(camera)
-	size = cv.GetSize(img)
+	#font = cv.InitFont(cv.CV_FONT_HERSHEY_SIMPLEX, 1.0, 1.0)
+	retval, img = camera.read()
+	size = img.shape()
 	n_pixels = size[0]*size[1]
 
-	grey = cv.CreateImage(size, 8,1)
-	recent_frames = [cv.CloneImage(grey)]
-	base = cv.CloneImage(grey)
-	cv.CvtColor(img, base, cv.CV_RGB2GRAY)
+	#grey = cv2.createImage(size, 8,1)
+	#grey = numpy.zeros((size[0],size[1],3),numpy.uint8)
+	#recent_frames = [cv.CloneImage(grey)]
+	#base = cv.CloneImage(grey)
+	#cv.CvtColor(img, base, cv.CV_RGB2GRAY)
+        img_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY) 
 	#cv.ShowImage('card', base)
-	tmp = cv.CloneImage(grey)
+	#tmp = cv.CloneImage(grey)
 
 
 	while True:
-		img = cv.QueryFrame(camera)
-		cv.CvtColor(img, grey, cv.CV_RGB2GRAY)
-
+		retvalue, img = camera.read()
+		img_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+       #Rendu la a modifier#Rendu la a modifier#Rendu la a modifier 
 		biggest_diff = max(sum_squared(grey, frame) / n_pixels for frame in recent_frames)
 
 		#display the cam view
-		cv.PutText(img, "%s" % biggest_diff, (1,24), font, (255,255,255))
-		cv.ShowImage('win',img)
+		cv2.putText(img, "%s" % biggest_diff, (1,24), cv2.FONT_HERSEY_SIMPLEX,1.0, (255,255,255))
+		cv2.imshow('win',img)
 		recent_frames.append(cv.CloneImage(grey))
 		if len(recent_frames) > 3:
 			del recent_frames[0]
@@ -144,11 +146,11 @@ def watch_for_card(camera):
 
 
 def setup_windows():
-	cv.NamedWindow('card_1')
-	cv.NamedWindow('card_2')
-	cv.NamedWindow('card_3')
+	cv2.namedWindow('card_1')
+	cv2.namedWindow('card_2')
+	cv2.namedWindow('card_3')
 	#cv.NamedWindow('base')
-	cv.NamedWindow('win')
+	cv2.namedWindow('win')
 	#cv.StartWindowThread()
 
 
