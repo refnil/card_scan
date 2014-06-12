@@ -30,7 +30,7 @@ def get_card(color_capture, corners):
 	mat = cv2.getPerspectiveTransform(corners, target)
 	#warped = cv.CloneImage(color_capture)
         #cv.WarpPerspective(color_capture, warped, mat)
-        warped = cv2.warpPerspective(color_capture, mat, color_capture.shape())
+        warped = cv2.warpPerspective(color_capture, mat, color_capture.shape)
 	#cv.SetImageROI(warped, (0,0,223,310) )
         warped = warped[0:310, 0:223]
 	return warped
@@ -52,7 +52,7 @@ def update_windows(n=3):
 	for i in xrange(1,min(n,l)+1):
 		#print "setting ",i
 		tmp = captures[-i].copy()
-                cv2.putText(tmp, "%s" % (l-i+1), (1,24), cv2.FONT_HERSEY_SIMPLEX,1.0, (255,255,255))
+                cv2.putText(tmp, "%s" % (l-i+1), (1,24), font,1.0, (255,255,255))
 		cv2.imshow("card_%d" % i, tmp)
 		cv2.setMouseCallback("card_%d" % i, card_window_clicked, l - i)
 
@@ -61,18 +61,18 @@ def watch_for_card(camera):
 	been_to_base = False
 
 	global captures
-	#global font
+	global font
 	captures = []
 
-	#font = cv.InitFont(cv.CV_FONT_HERSHEY_SIMPLEX, 1.0, 1.0)
+	font = cv2.FONT_HERSHEY_SIMPLEX
 	retval, img = camera.read()
-	size = img.shape()
+	size = img.shape
 	n_pixels = size[0]*size[1]
 
 	#grey = cv2.createImage(size, 8,1)
-	#grey = numpy.zeros((size[0],size[1],3),numpy.uint8)
-	#recent_frames = [cv.CloneImage(grey)]
-	#base = cv.CloneImage(grey)
+	grey = numpy.zeros((size[0],size[1],3),numpy.uint8)
+	recent_frames = [grey.copy()]
+	base = grey.copy()
 	#cv.CvtColor(img, base, cv.CV_RGB2GRAY)
         img_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY) 
 	#cv.ShowImage('card', base)
@@ -86,14 +86,14 @@ def watch_for_card(camera):
 		biggest_diff = max(sum_squared(grey, frame) / n_pixels for frame in recent_frames)
 
 		#display the cam view
-		cv2.putText(img, "%s" % biggest_diff, (1,24), cv2.FONT_HERSEY_SIMPLEX,1.0, (255,255,255))
+		cv2.putText(img, "%s" % biggest_diff, (1,24), font,1.0, (255,255,255))
 		cv2.imshow('win',img)
-		recent_frames.append(cv.CloneImage(grey))
+		recent_frames.append(grey.copy())
 		if len(recent_frames) > 3:
 			del recent_frames[0]
 
 		#check for keystroke
-		c = cv.WaitKey(10)
+		c = cv2.waitKey(10)
 		#if there was a keystroke, reset the last capture
 		if c == 27:
 			return captures
@@ -101,7 +101,7 @@ def watch_for_card(camera):
 			has_moved = True
 			been_to_base = True
 		elif c == 114:
-			base = cv.CloneImage(grey)
+			base = grey.copy()
 
 
 		#if we're stable-ish
@@ -123,7 +123,7 @@ def watch_for_card(camera):
 				cv.ShowImage('dbg%s' % (i+1), tmp)"""
 			#print "stable. corr = %s. moved = %s. been_to_base = %s" % (base_corr, has_moved, been_to_base)
 			if base_corr > 0.75 and not been_to_base:
-				base = cv.CloneImage(grey)
+				base = grey.copy()
 			#	cv.ShowImage('debug', base)
 				has_moved = False
 				been_to_base = True
@@ -132,7 +132,7 @@ def watch_for_card(camera):
 				corners = detect_card(grey, base)
 				if corners is not None:
 					card = get_card(grey, corners)
-					cv.Flip(card,card,-1)
+					card = cv2.flip(card,-1)
 					captures.append(card)
 					update_windows()
 					#cv.ShowImage('card', card)
