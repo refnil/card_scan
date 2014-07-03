@@ -18,15 +18,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import math
 import os
 import sqlite3
-import numpy
+import numpy as np
 import cv2
 from detect_card import detect_card
 from cv_utils import float_version, show_scaled, sum_squared, ccoeff_normed
 import config
 
 def get_card(color_capture, corners):
-    target = [(0,0), (223,0), (223,310), (0,310)]
+    target = np.array([(0,0), (223,0), (223,310), (0,310)])
     #mat = cv.CreateMat(3,3, cv.CV_32FC1)
+    corners = np.array(corners)
+    print(corners)
     mat = cv2.getPerspectiveTransform(corners, target)
     #warped = cv.CloneImage(color_capture)
         #cv.WarpPerspective(color_capture, warped, mat)
@@ -71,12 +73,12 @@ def watch_for_card(camera):
     n_pixels = size[0]*size[1]
 
     #grey = cv2.createImage(size, 8,1)
-    grey = numpy.zeros((size[0],size[1]),numpy.uint8)
+    grey = np.zeros((size[0],size[1]),np.uint8)
     #print('gris'+str(grey))
     #cv.CvtColor(img, base, cv.CV_RGB2GRAY)
     base = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     recent_frames = [base.copy()]
-    print('base: '+str(base))
+    #print('base: '+str(base))
     #cv.ShowImage('card', base)
     #tmp = cv.CloneImage(grey)
 
@@ -115,7 +117,7 @@ def watch_for_card(camera):
             #base_diff = max(sum_squared(base, frame) / n_pixels for frame in recent_frames)
             #print('frame: '+str(frame.shape))
             base_corr = min(ccoeff_normed(base, frame) for frame in recent_frames)
-            print('base_corr: '+str(base_corr))
+            #print('base_corr: '+str(base_corr))
             #cv.ShowImage('debug', base)
 
             """for i, frame in enumerate(recent_frames):

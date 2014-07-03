@@ -32,7 +32,8 @@ def show_scaled(win, img):
 
 def float_version(img):
     #tmp = cv.CreateImage( cv.GetSize(img), 32, 1)
-    tmp = cv2.convertScaleAbs(img, 1/255.0)
+    #tmp = cv2.convertScaleAbs(img, 1/255.0)
+    tmp = img/255.0
     return tmp
 
 def sum_squared(img1, img2):
@@ -45,9 +46,14 @@ def ccoeff_normed(img1, img2):
     size = img1.shape
     tmp1 = float_version(img1)
     tmp2 = float_version(img2)
-
+    
+    #print(tmp1)
+    mean1 = cv2.mean(tmp1)
+    mean2 = cv2.mean(tmp2)
+    #print('mean: '+str(mean1)+' '+str(mean2))
     tmp1 = cv2.subtract(tmp1, cv2.mean(tmp1))
     tmp2 = cv2.subtract(tmp2, cv2.mean(tmp2))
+
 
     #norm1 = cv.CloneImage(tmp1)
     #norm2 = cv.CloneImage(tmp2)
@@ -56,9 +62,10 @@ def ccoeff_normed(img1, img2):
 
     #cv.Mul(tmp1, tmp2, tmp1)
     dot = numpy.dot(tmp1.flat,tmp2.flat)
-    sums = (cv2.sumElems(norm1)[0]*cv2.sumElems(norm2)[0])**0.5
-    print(dot)
-    print(sums)
+    sum1 = cv2.sumElems(norm1)[0]
+    sum2 = cv2.sumElems(norm2)[0]
+    sums = (sum1*sum2)**0.5
+    #print(dot,sum1,sum2,sums)
 
     return dot / sums
 

@@ -106,7 +106,8 @@ def main_video():
             next_box = current_max_box + 1
 
     	print "box to scan[%02d]: " % next_box,
-    	answer = raw_input().rstrip()
+    	#answer = raw_input().rstrip()
+        answer = ""
     	if answer != "":
     	    next_box = answer
         capture_box(video, next_box)
