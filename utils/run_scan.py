@@ -90,7 +90,7 @@ def main_camera():
                 capture_box(cam, next_box)
     
 def main_video():
-    video = cv2.VideoCapture(0)
+    video = cv2.VideoCapture("/home/mlapointe/Bureau/Webcam/2014-07-02-084024.webm")
     setup_all(True)
 
     scan_card.setup_windows()
