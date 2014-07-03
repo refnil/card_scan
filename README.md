@@ -6,6 +6,9 @@ This is a set of utilities to recognize and extract card images from a video fee
 
 **Dependencies and Setup**
 
+You can setup a virtualenv as follow
+<pre>virtualenv --system-site-package env</pre>
+
 python 2.7, numpy, Flask, SQLAlchemy, Elixir
 <pre>
 sudo apt-get install python-dev
@@ -44,7 +47,7 @@ sudo pip install -r requirements.txt
 | <i>escape</i>             | finish scanning |
 
 </center>
-<br />
+<br/>
 
 ***2. Match***
 
