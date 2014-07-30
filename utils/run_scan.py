@@ -25,68 +25,69 @@ from models import *
 import re
 
 def captures_to_db(captures, box_name):
-	#given an iterable of captures and a box name,
-	#save all the captured images to the database
-	starting_index = session.query(func.max(InvCard.box_index))\
-			.filter(InvCard.box==box_name).first()[0]
-	if starting_index is None:
-		starting_index = 0
+    #given an iterable of captures and a box name,
+    #save all the captured images to the database
+    starting_index = session.query(func.max(InvCard.box_index))\
+            .filter(InvCard.box==box_name).first()[0]
+    if starting_index is None:
+        starting_index = 0
 
-	for i, img in enumerate(captures):
-		as_png = cv2.imencode(".png",img).tostring()
+    for i, img in enumerate(captures):
+        as_png = cv2.imencode(".png",img)#.tostring()
+        print(as_png)
 
-		InvCard(
-				box = box_name,
-				box_index = starting_index + i,
-				scan_png = as_png,
-				recognition_status = "scanned",
-				inventory_status = "present")
+        InvCard(
+                box = box_name,
+                box_index = starting_index + i,
+                scan_png = as_png,
+                recognition_status = "scanned",
+                inventory_status = "present")
 
-	session.commit()
+    session.commit()
 
 def capture_box(cam, boxnum):
 
-	print "scanning %s" % boxnum
-	while True: #retry loop
-		retry = False
-		captures = scan_card.watch_for_card(cam)
-		print "captured %d cards. is this correct?" % len(captures)
-		answer = raw_input()
-		print "got answer: ", answer
-		if re.search('[yc]',answer):
-			break #finish the function
-		else:
-			while not re.match('[ra]', answer):
-				print "(r)etry scan? or (a)bort?"
-				answer = raw_input()
-			if re.search('r',answer):
-				continue
-			elif re.search('a',answer):
-				return #abort the scan
-			#default will retry
+    print "scanning %s" % boxnum
+    while True: #retry loop
+        retry = False
+        captures = scan_card.watch_for_card(cam)
+        print "captured %d cards. is this correct?" % len(captures)
+        answer = raw_input()
+        print "got answer: ", answer
+        if re.search('[yc]',answer):
+            break #finish the function
+        else:
+            while not re.match('[ra]', answer):
+                print "(r)etry scan? or (a)bort?"
+                answer = raw_input()
+            if re.search('r',answer):
+                continue
+            elif re.search('a',answer):
+                return #abort the scan
+            #default will retry
 
-	captures_to_db(captures, boxnum)
+    captures_to_db(captures, boxnum)
 
 def main_camera():
-	setup_all(True)
+    setup_all(True)
 
-	cam = cv2.VideoCapture(0)
-	scan_card.setup_windows()
+    cam = cv2.VideoCapture(0)
+    scan_card.setup_windows()
 
-	#main loop
-	while True:
-		#for now, name the next box as the largest integer box name, +1
-		current_max_box = session.query(func.max(sqlalchemy.cast(InvCard.box, sqlalchemy.Integer))).first()[0]
-		if current_max_box is None:
-			#if there is no current box, just start at 1
-			next_box = 1
-		else:
-			next_box = current_max_box + 1
+    #main loop
+    while True:
+        #for now, name the next box as the largest integer box name, +1
+        current_max_box = session.query(func.max(sqlalchemy.cast(InvCard.box, sqlalchemy.Integer))).first()[0]
+        if current_max_box is None:
+            #if there is no current box, just start at 1
+            next_box = 1
+        else:
+            next_box = current_max_box + 1
 
-		print "box to scan[%02d]: " % next_box,
-		answer = raw_input().rstrip()
-		if answer != "":
-			next_box = answer
+        print "box to scan[%02d]: " % next_box,
+        answer = raw_input().rstrip()
+        if answer != "":
+            next_box = answer
                 capture_box(cam, next_box)
     
 def main_video():
@@ -97,19 +98,19 @@ def main_video():
 
     #main loop
     while True:
-    	#for now, name the next box as the largest integer box name, +1
-    	current_max_box = session.query(func.max(sqlalchemy.cast(InvCard.box, sqlalchemy.Integer))).first()[0]
-    	if current_max_box is None:
-	    #if there is no current box, just start at 1
-	    next_box = 1
-	else:
+        #for now, name the next box as the largest integer box name, +1
+        current_max_box = session.query(func.max(sqlalchemy.cast(InvCard.box, sqlalchemy.Integer))).first()[0]
+        if current_max_box is None:
+        #if there is no current box, just start at 1
+        next_box = 1
+    else:
             next_box = current_max_box + 1
 
-    	print "box to scan[%02d]: " % next_box,
-    	#answer = raw_input().rstrip()
+        print "box to scan[%02d]: " % next_box,
+        #answer = raw_input().rstrip()
         answer = ""
-    	if answer != "":
-    	    next_box = answer
+        if answer != "":
+            next_box = answer
         capture_box(video, next_box)
 
 

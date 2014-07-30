@@ -25,10 +25,11 @@ from cv_utils import float_version, show_scaled, sum_squared, ccoeff_normed
 import config
 
 def get_card(color_capture, corners):
-    target = np.array([(0,0), (223,0), (223,310), (0,310)])
+    target = np.array([(0,0), (223,0), (223,310), (0,310)],np.float32)
     #mat = cv.CreateMat(3,3, cv.CV_32FC1)
-    corners = np.array(corners)
-    print(corners)
+    corners = np.array(corners,np.float32)
+    #print('corners: '+str(corners))
+    #print('target: '+str(target))
     mat = cv2.getPerspectiveTransform(corners, target)
     #warped = cv.CloneImage(color_capture)
         #cv.WarpPerspective(color_capture, warped, mat)
@@ -86,7 +87,7 @@ def watch_for_card(camera):
     while True:
         retvalue, img = camera.read()
         if img==None: 
-             break
+             return captures
         img_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
        #Rendu la a modifier#Rendu la a modifier#Rendu la a modifier 
         biggest_diff = max(sum_squared(img_gray, frame) / n_pixels for frame in recent_frames)
